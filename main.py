@@ -1,20 +1,26 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 from .transcription import transcribe_video
+from .translation import translate_video
 # from httpx import HTTPException
 
 app = FastAPI()
 
-class VideoRequest(BaseModel):
+class TranscribeRequest(BaseModel):
     video_url: str
     video_language: str
     
+class TranslateRequest(BaseModel):
+    video_url: str
+    video_language: str
+    target_language: str | None = "English"
+
 @app.get("/")
 async def root():
     return {"message": "Welcome to loqio!"}
 
 @app.post("/transcribe/")
-async def transcribe(request: VideoRequest):
+async def transcribe(request: TranscribeRequest):
     # if not request.video_url.startswith("http"):
     #     raise HTTPException(status_code=400, detail="Invalid URL")
 
@@ -24,4 +30,17 @@ async def transcribe(request: VideoRequest):
         "status": "success",
         "message": f"Processed {request.video_url} in {request.video_language}",
         "transcription": transcript,
+    }
+
+@app.post("/translate/")
+async def translate(request: TranslateRequest):
+    # if not request.video_url.startswith("http"):
+    #     raise HTTPException(status_code=400, detail="Invalid URL")
+
+    translation = translate_video(request.video_url, request.video_language, request.target_language)
+
+    return {
+        "status": "success",
+        "message": f"Processed {request.video_url} from {request.video_language} to {request.target_language}",
+        "translation": translation,
     }

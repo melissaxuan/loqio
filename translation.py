@@ -7,6 +7,7 @@ import tqdm
 import sys
 import re
 import torch
+import os
 
 #####
 
@@ -70,28 +71,28 @@ def extract_yt_video_id(yt_url):
     else:
         raise ValueError("Invalid YouTube URL")
     
-def transcribe_audio(file, language):
-    transcribe_module = sys.modules['whisper.transcribe']
-    transcribe_module.tqdm.tqdm = _CustomProgressBar
+def translate_audio(file, language, target_language):
+    translate_module = sys.modules['whisper.transcribe']
+    translate_module.tqdm.tqdm = _CustomProgressBar
 
     model = whisper.load_model("large-v2")
     decode_options = {
     "language": language,
     "verbose": False, # verbose=False is often required for the progress bar to appear/callback to work
     }
-    model_opt = dict(task="transcribe", **decode_options)
+    model_opt = dict(task="translate", **decode_options)
     result = model.transcribe(file, **model_opt)
     writer = get_writer("srt", ".")
     yt_video_id = file.split(".")[0]  # Assuming the file is named as "{video_id}.m4a"
-    writer(result, f"{yt_video_id}.srt")
+    writer(result, f"{yt_video_id}-{target_language}.srt")
     for segment in result['segments']:
         print(f"[{segment['start']:.2f}s -> {segment['end']:.2f}s] {segment['text']}")
-    
+
     del model
     if torch.cuda.is_available():
         torch.cuda.empty_cache()
 
-def process_transcription(transcription):
+def process_translation(transcription):
     blocks = transcription.split('\n\n')
     processed_lines = []
     for block in blocks:
@@ -115,7 +116,7 @@ def format_time(time):
 
 ### 3. turn transcription into dict:
 
-def parse_transcription_srt(srt):
+def parse_translation_srt(srt):
     with open(srt, "r", encoding="utf-8") as f:
         srt_content = f.read()
 
@@ -145,13 +146,16 @@ def parse_transcription_srt(srt):
 
 ### 4. put all together for api:
 
-def transcribe_video(yt_url, language):
-    get_yt_audio(yt_url)
+def translate_video(yt_url, language, target_language):
     video_id = extract_yt_video_id(yt_url)
-    audio_file = f"{video_id}.m4a"
-    transcribe_audio(audio_file, language)
-    srt_file = f"{video_id}.srt"
-    transcript = parse_transcription_srt(srt_file)
+    
+    if not os.path.exists(f"{video_id}.m4a"):
+        get_yt_audio(yt_url)
+        audio_file = f"{video_id}.m4a"
+
+    translate_audio(audio_file, language, target_language)
+    srt_file = f"{video_id}-{target_language}.srt"
+    transcript = parse_translation_srt(srt_file)
     return transcript
 
 #####
