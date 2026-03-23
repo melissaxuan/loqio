@@ -44,3 +44,8 @@ async def translate(request: TranslateRequest):
         "message": f"Processed {request.video_url} from {request.video_language} to {request.target_language}",
         "translation": translation,
     }
+
+@app.post("/subtitles/")
+async def subtitles(request: TranslateRequest):
+    transcript = transcribe_video(request.video_url, request.video_language)
+    translation = translate_video(request.video_url, request.video_language, request.target_language)

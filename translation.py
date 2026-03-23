@@ -50,7 +50,7 @@ def get_yt_subtitles(yt_url):
 
 ### 2. transcribe audio file using whisper:
 
-    # Define a custom tqdm class
+# Define a custom tqdm class
 class _CustomProgressBar(tqdm.tqdm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
