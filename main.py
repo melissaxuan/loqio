@@ -14,7 +14,7 @@ class TranscribeRequest(BaseModel):
 class TranslateRequest(BaseModel):
     video_url: str
     video_language: str
-    target_language: str | None = "English"
+    target_language: str | None = "en"
 
 @app.get("/")
 async def root():
