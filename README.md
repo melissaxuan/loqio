@@ -1,9 +1,8 @@
-# loqio
+# loqio: Multi-Language Video Transcription
 
-## Install necessary imports using:
-## `pip install -r requirements.txt`
+## Setup:
+##### Install necessary imports using: `pip install -r requirements.txt`
 
-## Install FFmpeg - for audio processing
+##### Install FFmpeg for audio processing.
 
-## Run FastAPI server using:
-## `fastapi dev loqio/main.py`
+##### Run FastAPI server using: `fastapi dev loqio/main.py`
