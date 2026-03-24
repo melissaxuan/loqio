@@ -151,7 +151,8 @@ def translate_video(yt_url, language, target_language):
     
     if not os.path.exists(f"{video_id}.m4a"):
         get_yt_audio(yt_url)
-        audio_file = f"{video_id}.m4a"
+        
+    audio_file = f"{video_id}.m4a"
 
     translate_audio(audio_file, language, target_language)
     srt_file = f"{video_id}-{target_language}.srt"
