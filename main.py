@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from .transcription import transcribe_video
 from .translation import translate_video
+from .subtitles import video_subtitles
 # from httpx import HTTPException
 
 app = FastAPI()
@@ -47,5 +48,10 @@ async def translate(request: TranslateRequest):
 
 @app.post("/subtitles/")
 async def subtitles(request: TranslateRequest):
-    transcript = transcribe_video(request.video_url, request.video_language)
-    translation = translate_video(request.video_url, request.video_language, request.target_language)
+    matched_subtitles = video_subtitles(request.video_url, request.video_language, request.target_language)
+
+    return {
+        "status": "success",
+        "message": f"Processed {request.video_url} from {request.video_language} to {request.target_language}",
+        "subtitles": matched_subtitles,
+    }
